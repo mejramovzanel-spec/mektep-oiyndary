@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>55-сабақ — Ауданды табу</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#163a91,#7b45ce);min-height:100vh;display:grid;place-items:center;color:#17264c;padding:18px}.card{width:min(760px,100%);background:#fff;border-radius:28px;padding:30px;box-shadow:0 20px 50px #0004;text-align:center}h1{font-size:clamp(24px,4vw,36px);margin:12px 0;color:#233e98}.sub{color:#566b8c;font-weight:bold}.progress{height:14px;border-radius:20px;background:#e9eefe;overflow:hidden;margin:18px 0}.fill{height:100%;background:#28bd92;width:0%;transition:.25s}.question{font-size:clamp(22px,3.6vw,29px);font-weight:800;line-height:1.35;margin:26px 0}.answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.answer{font-size:22px;font-weight:bold;border:3px solid #b9ccfb;background:#f1f6ff;border-radius:18px;padding:20px 12px;cursor:pointer;color:#17264c}.answer:hover{background:#e1edff}.answer.correct{background:#c7f8d9;border-color:#14a456}.answer.wrong{background:#ffe1e3;border-color:#ec5160}.feedback{min-height:76px;font-size:23px;font-weight:bold;padding:18px 5px}.ok{color:#138b4b}.bad{color:#c52d45}.next{background:#ffbe36;border:0;border-radius:18px;font-size:20px;font-weight:800;padding:16px 32px;cursor:pointer}.next:disabled{opacity:.45;cursor:default}.small{color:#526079;font-size:15px;margin-top:18px}@media(max-width:520px){.answers{grid-template-columns:1fr}.card{padding:20px}.answer{padding:14px}}
+</style>
+</head>
+<body><main class="card"><div class="sub">3-сынып • Математика • 55-сабақ</div><h1>🏠 Ауданды тап!</h1><div id="counter" class="sub"></div><div class="progress"><div id="fill" class="fill"></div></div><div id="question" class="question"></div><div id="answers" class="answers"></div><div id="feedback" class="feedback" aria-live="polite"></div><button id="next" class="next" disabled>Келесі сұрақ ➜</button><div class="small">Дыбыс шығуы үшін алдымен жауап нұсқасын басыңыз. Интернет қажет емес.</div></main>
+<script>
+const questions=[
+{q:'Шаршының ауданын табу формуласы қандай?',a:['S = a + a','S = a × a','S = 4 × a','S = a − a'],c:1,why:'Шаршының ауданы: S = a × a.'},
+{q:'Қабырғасы 5 см шаршының ауданы неше см²?',a:['10 см²','20 см²','25 см²','15 см²'],c:2,why:'5 × 5 = 25 см².'},
+{q:'Тіктөртбұрыштың ауданын қалай табамыз?',a:['a + b','2 × (a + b)','a × b','a − b'],c:2,why:'Ұзындығын еніне көбейтеміз: S = a × b.'},
+{q:'Ұзындығы 5 см, ені 3 см тіктөртбұрыштың ауданы қанша?',a:['8 см²','16 см²','15 см²','25 см²'],c:2,why:'5 × 3 = 15 см².'},
+{q:'Ұзындығы 6 см, ені 4 см тіктөртбұрыштың ауданы қанша?',a:['24 см²','20 см²','10 см²','12 см²'],c:0,why:'6 × 4 = 24 см².'},
+{q:'Ауданы 20 см², ұзындығы 5 см. Ені қанша?',a:['5 см','4 см','15 см','25 см'],c:1,why:'20 : 5 = 4 см.'},
+{q:'Ауданы 18 см², ені 3 см. Ұзындығы қанша?',a:['9 см','15 см','6 см','21 см'],c:2,why:'18 : 3 = 6 см.'},
+{q:'Қабырғасы 3 см шаршының периметрі қанша?',a:['9 см','12 см','6 см','3 см'],c:1,why:'Периметр: 3 × 4 = 12 см.'},
+{q:'1 дм² неше см²-ге тең?',a:['10 см²','100 см²','1000 см²','1 см²'],c:1,why:'1 дм = 10 см, сондықтан 10 × 10 = 100 см².'},
+{q:'Ауданы 40 см², ені 5 см. Ұзындығы қанша?',a:['8 см','35 см','45 см','200 см'],c:0,why:'40 : 5 = 8 см.'}
+];
+let i=0,score=0,solved=false,ctx;
+const el=id=>document.getElementById(id);
+function tone(good){try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();const now=ctx.currentTime;const notes=good?[523,659,784,1047]:[330,262];notes.forEach((hz,k)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=good?'sine':'triangle';osc.frequency.value=hz;gain.gain.setValueAtTime(.0001,now+k*.14);gain.gain.exponentialRampToValueAtTime(.12,now+k*.14+.02);gain.gain.exponentialRampToValueAtTime(.0001,now+k*.14+.19);osc.connect(gain);gain.connect(ctx.destination);osc.start(now+k*.14);osc.stop(now+k*.14+.2)})}catch(e){}}
+function show(){solved=false;const x=questions[i];el('counter').textContent=`Сұрақ ${i+1} / ${questions.length}  •  Ұпай: ${score}`;el('fill').style.width=`${i/questions.length*100}%`;el('question').textContent=x.q;el('feedback').textContent='';el('feedback').className='feedback';el('next').disabled=true;el('next').textContent=i===questions.length-1?'Нәтижені көру 🏆':'Келесі сұрақ ➜';el('answers').innerHTML='';x.a.forEach((ans,j)=>{const b=document.createElement('button');b.className='answer';b.textContent=ans;b.onclick=()=>choose(j,b);el('answers').appendChild(b)})}
+function choose(j,button){if(solved)return;const x=questions[i];if(j===x.c){solved=true;score++;button.classList.add('correct');el('feedback').className='feedback ok';el('feedback').textContent='🌟 Жарайсың! '+x.why;tone(true);el('next').disabled=false;[...el('answers').children].forEach(b=>b.disabled=true);el('counter').textContent=`Сұрақ ${i+1} / ${questions.length}  •  Ұпай: ${score}`;}else{button.classList.add('wrong');el('feedback').className='feedback bad';el('feedback').textContent='🔄 Тағы да байқап көр!';tone(false);setTimeout(()=>{if(!solved)button.classList.remove('wrong')},550)}}
+el('next').onclick=()=>{i++;if(i<questions.length)show();else{el('fill').style.width='100%';el('counter').textContent='Ойын аяқталды!';el('question').textContent=`🏆 Нәтиже: ${score} / ${questions.length} ұпай`;el('answers').innerHTML='';el('feedback').className='feedback ok';el('feedback').textContent=score===10?'Керемет! Барлық сұраққа дұрыс жауап бердің!':'Жарайсың! Тағы да жаттығып көр!';el('next').textContent='Қайта ойнау ↻';el('next').disabled=false;el('next').onclick=()=>location.reload()}};show();
+</script></body></html>
