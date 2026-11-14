@@ -1,0 +1,41 @@
+<!doctype html><html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>54-сабақ — Шеңбер және дөңгелек</title><style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#063f73,#16a6c5);color:#183553;min-height:100vh;display:grid;place-items:center;padding:16px}
+main{width:min(760px,100%);background:#fff9e7;border:7px solid #f7c94a;border-radius:26px;padding:clamp(18px,4vw,36px);box-shadow:0 20px 55px #042c5680}
+h1{margin:0 0 10px;color:#075a8b;font-size:clamp(24px,4vw,36px)}#progress{font-weight:bold;color:#38607a}#q{font-size:clamp(21px,3.3vw,29px);line-height:1.35;margin:25px 0}
+#answers{display:grid;grid-template-columns:1fr 1fr;gap:13px}button{font:inherit;cursor:pointer;border:0;border-radius:15px;padding:17px 12px;font-size:19px;font-weight:700}
+.answer{background:#e4f3ff;border:3px solid #8bc9f2;color:#15466c;min-height:80px}.answer:hover{background:#c8e9ff}.answer:disabled{cursor:default;opacity:.8}
+.answer.good{background:#b7f3c5;border-color:#15954b}.answer.bad{background:#ffd4d4;border-color:#c22d36}
+#feedback{min-height:53px;margin:19px 0 10px;font-size:24px;font-weight:800;text-align:center}
+#next,#restart{display:none;background:#ffcd47;color:#4b3500;width:100%}
+footer{font-size:14px;color:#547085;margin-top:15px;text-align:center}
+@media(max-width:500px){#answers{grid-template-columns:1fr}.answer{min-height:60px}}
+</style></head><body><main>
+<h1>🟡 Шеңбер және дөңгелек</h1><div id="progress"></div><div id="q"></div><div id="answers"></div>
+<div id="feedback" aria-live="polite"></div><button id="next">Келесі сұрақ →</button><button id="restart">Қайта ойнау ↻</button>
+<footer>3-сынып • 54-сабақ • Интернетсіз жұмыс істейді</footer></main>
+<script>
+const data=[["Шеңбер дегеніміз не?", ["Тұйық қисық сызық", "Түзу сызық", "Үшбұрыш", "Кесінді"], 0], ["Дөңгелек дегеніміз не?", ["Тек шеңбер сызығы", "Шеңбермен шектелген жазық фигура", "Екі түзу", "Бұрыш"], 1], ["Шеңбердің дәл ортасындағы нүкте қалай аталады?", ["Төбе", "Қабырға", "Центр", "Диаметр"], 2], ["Центрден шеңбердің нүктесіне дейінгі кесінді қалай аталады?", ["Радиус", "Диаметр", "Бұрыш", "Қабырға"], 0], ["Центр арқылы өтетін, шеңбердің екі нүктесін қосатын кесінді қалай аталады?", ["Сәуле", "Диаметр", "Радиус", "Түзу"], 1], ["Радиус 3 см болса, диаметр неше см?", ["3 см", "9 см", "6 см", "12 см"], 2], ["Диаметр 8 см болса, радиус неше см?", ["16 см", "8 см", "2 см", "4 см"], 3], ["Шеңбер сызу үшін қандай құрал қолданылады?", ["Сызғыш қана", "Циркуль", "Өшіргіш", "Таразы"], 1], ["Қайсысының ішкі аймағы бар?", ["Тек шеңбердің", "Тек кесіндінің", "Дөңгелектің", "Тек сәуленің"], 2], ["Шеңбер бойындағы барлық нүктелер центрден қалай орналасады?", ["Әртүрлі қашықтықта", "Бірдей қашықтықта", "Тек жоғарыда", "Тек төменде"], 1]];
+let index=0,points=0,solved=false,firstTry=true;
+let audio;
+function sound(ok){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume();
+const now=audio.currentTime;const notes=ok?[523,659,784,1047]:[280,220];
+notes.forEach((freq,i)=>{const osc=audio.createOscillator(),gain=audio.createGain();osc.type=ok?'sine':'triangle';osc.frequency.value=freq;
+const start=now+i*(ok?.12:.17);gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(.11,start+.02);gain.gain.exponentialRampToValueAtTime(.0001,start+.19);
+osc.connect(gain);gain.connect(audio.destination);osc.start(start);osc.stop(start+.21)})}catch(e){}}
+function show(){solved=false;firstTry=true;document.getElementById('next').style.display='none';
+document.getElementById('feedback').textContent='';document.getElementById('progress').textContent=`Сұрақ ${index+1} / ${data.length}  •  Ұпай: ${points}`;
+document.getElementById('q').textContent=data[index][0];const root=document.getElementById('answers');root.innerHTML='';
+data[index][1].forEach((answer,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+i)+') '+answer;
+b.onclick=()=>choose(i,b);root.appendChild(b)})}
+function choose(i,b){if(solved)return;const right=data[index][2];if(i===right){solved=true;if(firstTry)points++;
+b.classList.add('good');document.querySelectorAll('.answer').forEach(x=>x.disabled=true);document.getElementById('feedback').textContent='✅ Жарайсың! Дұрыс жауап!';document.getElementById('feedback').style.color='#16824a';
+document.getElementById('next').style.display='block';document.getElementById('next').textContent=index===data.length-1?'Нәтижені көру 🏆':'Келесі сұрақ →';sound(true)}
+else{firstTry=false;b.classList.add('bad');b.disabled=true;document.getElementById('feedback').textContent='❌ Тағы да байқап көр!';document.getElementById('feedback').style.color='#c12b3b';sound(false)}}
+document.getElementById('next').onclick=()=>{index++;if(index<data.length)show();else{document.getElementById('progress').textContent='Тест аяқталды!';
+document.getElementById('q').textContent=`🏆 Нәтижең: ${points} / ${data.length} ұпай`;document.getElementById('answers').innerHTML='';
+document.getElementById('feedback').textContent='Жарайсың! Тақырыпты қайталадың!';document.getElementById('feedback').style.color='#16824a';
+document.getElementById('next').style.display='none';document.getElementById('restart').style.display='block'}}};
+document.getElementById('restart').onclick=()=>{index=0;points=0;document.getElementById('restart').style.display='none';show()};
+show();
+</script></body></html>
